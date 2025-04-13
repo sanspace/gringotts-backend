@@ -1,0 +1,79 @@
+# cloudbuild.yaml
+steps:
+  # 1. Build the Docker image using the Dockerfile in the current directory
+  # The image is tagged with the Artifact Registry path and the commit SHA for uniqueness
+  - name: 'gcr.io/cloud-builders/docker'
+    id: Build
+    args:
+      - 'build'
+      - '-t'
+      - '${_ARTIFACT_REGISTRY_LOCATION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPO}/${_IMAGE_NAME}:$COMMIT_SHA'
+      - '.' # Build context is the current directory
+
+  # 2. Push the built image to Google Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    id: Push
+    args:
+      - 'push'
+      - '${_ARTIFACT_REGISTRY_LOCATION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPO}/${_IMAGE_NAME}:$COMMIT_SHA'
+
+  # 3. Deploy the image to Google Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: Deploy
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - '${_SERVICE_NAME}' # Name of your Cloud Run service
+      - '--image=${_ARTIFACT_REGISTRY_LOCATION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPO}/${_IMAGE_NAME}:$COMMIT_SHA' # Image to deploy
+      - '--region=${_REGION}' # GCP region for the Cloud Run service
+      - '--platform=managed' # Use fully managed Cloud Run
+      # --- Environment Variables & Secrets ---
+      # Reference the secret from Secret Manager.
+      # This injects the latest version of the secret named _SECRET_NAME
+      # as an environment variable named _SECRET_ENV_VAR inside your Cloud Run container.
+      - '--set-secrets=${_SECRET_ENV_VAR_CLIENT}=${_SECRET_NAME_CLIENT}:latest'
+      - '--set-secrets=${_SECRET_ENV_VAR_SECRET_KEY}=${_SECRET_NAME_SECRET_KEY}:latest'
+      # --- Add other non-sensitive environment variables if needed ---
+      # Example: - '--set-env-vars=LOG_LEVEL=INFO,ANOTHER_VAR=some_value'
+      - '--set-env-vars=FRONTEND_ORIGIN_URL=${_FRONTEND_URL}'
+      - '--quiet'
+      # --- Other common configurations (uncomment and adjust as needed) ---
+      # - '--memory=512Mi'
+      # - '--cpu=1'
+      # - '--concurrency=80' # Requests per container instance
+      # - '--min-instances=0' # Can scale down to zero
+      # - '--max-instances=5' # Maximum number of instances
+      # - '--timeout=300' # Request timeout in seconds
+      - '--port=80' # Port your FastAPI app listens on inside the container (Uvicorn default)
+      # - '--allow-unauthenticated' # Make the service publicly accessible
+      # - '--no-allow-unauthenticated' # Require IAM authentication (default)
+      - '--service-account=${_SA_NAME}@${PROJECT_ID}.iam.gserviceaccount.com' # Optional: Specific runtime identity
+      # - '--ingress=all' # Or 'internal' or 'internal-and-cloud-load-balancing'
+
+# Specify the image(s) built by this pipeline for potential vulnerability scanning
+images:
+  - '${_ARTIFACT_REGISTRY_LOCATION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPO}/${_IMAGE_NAME}:$COMMIT_SHA'
+
+# Define substitutions - makes the template reusable and configurable
+# You can override these when triggering the build (e.g., via triggers or gcloud builds submit --substitutions=...)
+substitutions:
+  _SERVICE_NAME: 'gringotts-backend' # <-- CHANGE: Your desired Cloud Run service name
+  _REGION: 'asia-south1' # <-- CHANGE: The GCP region for Cloud Run (e.g., us-central1)
+  _ARTIFACT_REGISTRY_LOCATION: 'asia-south1' # <-- CHANGE: The region of your Artifact Registry repo
+  _ARTIFACT_REGISTRY_REPO: 'gringotts' # <-- CHANGE: Your Artifact Registry repo name
+  _IMAGE_NAME: 'github.com/sanspace/gringotts-backend' # <-- CHANGE: Your desired image name
+  _FRONTEND_URL: 'https://gringotts.sanspace.in'
+  _SA_NAME: 'gringotts' # just the name
+  # Secret configuration
+  _SECRET_NAME_CLIENT: 'gringotts-oauth-client' # <-- CHANGE: Name of the secret in Secret Manager
+  _SECRET_ENV_VAR_CLIENT: 'GOOGLE_CLIENT_ID' # <-- The environment variable name inside Cloud Run
+  _SECRET_NAME_SECRET_KEY: 'gringotts-secret-key' # <-- CHANGE: Name of the secret in Secret Manager
+  _SECRET_ENV_VAR_SECRET_KEY: 'BACKEND_JWT_SECRET_KEY' # <-- The environment variable name inside Cloud Run
+
+# Optional: Set a timeout for the build
+timeout: '1200s' # 20 minutes
+
+# Optional: Configure logging
+options:
+  logging: CLOUD_LOGGING_ONLY
