@@ -48,6 +48,7 @@ steps:
       # - '--max-instances=5' # Maximum number of instances
       # - '--timeout=300' # Request timeout in seconds
       - '--allow-unauthenticated' # Make the service publicly accessible
+      - '--no-invoker-iam-check' # No IAM check
       # - '--no-allow-unauthenticated' # Require IAM authentication (default)
       # - '--ingress=all' # Or 'internal' or 'internal-and-cloud-load-balancing'
 
