@@ -1,0 +1,105 @@
+# .dockerignore
+
+# --- Git ---
+# Ignore Git repository files
+.git/
+.gitignore
+
+# --- Docker ---
+# Often useful to ignore the ignore file and Dockerfile itself
+# if they change frequently but aren't needed in intermediate layers
+# .dockerignore
+# Dockerfile
+# Dockerfile.*
+
+# --- Python Virtual Environments ---
+# Common names for virtual environments
+venv/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+# In case venvs are nested within project subdirectories
+*/venv/
+*/.venv/
+*/env/
+*/ENV/
+
+# --- uv ---
+# uv cache directory (often global, but ignore if potentially local)
+.uv_cache/
+
+# --- Python Cache & Compiled Files ---
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+pip-wheel-metadata/
+.installed.cfg
+*.egg
+
+# --- IDE / Editor Configuration ---
+.idea/
+.vscode/
+.project
+.pydevproject
+.settings/
+*.sublime-project
+*.sublime-workspace
+nbproject/
+
+# --- Operating System Files ---
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# --- Secrets & Environment Configuration ---
+# CRITICAL: Never include .env files in your image!
+.env
+.env.*
+secrets/
+*.pem
+*.key
+
+# --- Testing Artifacts ---
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+nosetests.xml
+pytestdebug.log
+*.cover
+
+# --- Build Artifacts ---
+build/
+dist/
+downloads/
+eggs/
+lib/
+lib64/
+parts/
+sdist/
+develop-eggs/
+*.spec
+*.zip
+*.tar.gz
+
+# --- Logs ---
+*.log
+logs/
+*.log.*
+
+# --- Temporary Files ---
+*.swp
+*~
+*.bak
+*.tmp
+
+# --- Instance Folders (Common in Flask/Django, might be used) ---
+instance/
+# Add any other project-specific directories or files
+# that are not needed in the final container image.
+# e.g., local_data/, docs/, notebooks/
