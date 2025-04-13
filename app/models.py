@@ -1,5 +1,6 @@
-from pydantic import BaseModel, Field, EmailStr
 from typing import Any
+
+from pydantic import BaseModel, EmailStr, Field
 
 
 class GoogleToken(BaseModel):

@@ -1,16 +1,16 @@
 # app/main.py
 import os
 from datetime import timedelta
-from fastapi import FastAPI, Body, HTTPException, Depends, status
-from fastapi.middleware.cors import CORSMiddleware
+
 from dotenv import load_dotenv
-from google.oauth2 import id_token
+from fastapi import Body, Depends, FastAPI, HTTPException, status
+from fastapi.middleware.cors import CORSMiddleware
 from google.auth.transport import requests as google_requests
+from google.oauth2 import id_token
 
-from app.models import GoogleToken, BackendToken, UserInDB
-from app.database import get_user_by_google_sub, create_user
+from app.database import create_user, get_user_by_google_sub
 from app.gauth import create_backend_access_token, get_current_user
-
+from app.models import BackendToken, GoogleToken, UserInDB
 
 # Load environment variables from .env file (especially for FRONTEND_ORIGIN_URL)
 load_dotenv() 

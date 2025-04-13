@@ -1,15 +1,13 @@
 import os
 from datetime import datetime, timedelta, timezone
-from dotenv import load_dotenv
-from app.models import UserInDB
-from app.database import get_user_by_google_sub
 
-from fastapi import HTTPException, Depends, status
+from dotenv import load_dotenv
+from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 
-
-
+from app.database import get_user_by_google_sub
+from app.models import UserInDB
 
 load_dotenv()
 
