@@ -37,18 +37,18 @@ steps:
       # --- Add other non-sensitive environment variables if needed ---
       # Example: - '--set-env-vars=LOG_LEVEL=INFO,ANOTHER_VAR=some_value'
       - '--set-env-vars=FRONTEND_ORIGIN_URL=${_FRONTEND_URL}'
-      - '--quiet'
       # --- Other common configurations (uncomment and adjust as needed) ---
+      - '--quiet'
+      - '--port=80' # Port your FastAPI app listens on inside the container (Uvicorn default)
+      - '--service-account=${_SA_NAME}@${PROJECT_ID}.iam.gserviceaccount.com' # Optional: Specific runtime identity
       # - '--memory=512Mi'
       # - '--cpu=1'
       # - '--concurrency=80' # Requests per container instance
       # - '--min-instances=0' # Can scale down to zero
       # - '--max-instances=5' # Maximum number of instances
       # - '--timeout=300' # Request timeout in seconds
-      - '--port=80' # Port your FastAPI app listens on inside the container (Uvicorn default)
       # - '--allow-unauthenticated' # Make the service publicly accessible
       # - '--no-allow-unauthenticated' # Require IAM authentication (default)
-      - '--service-account=${_SA_NAME}@${PROJECT_ID}.iam.gserviceaccount.com' # Optional: Specific runtime identity
       # - '--ingress=all' # Or 'internal' or 'internal-and-cloud-load-balancing'
 
 # Specify the image(s) built by this pipeline for potential vulnerability scanning

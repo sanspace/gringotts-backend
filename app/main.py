@@ -31,6 +31,7 @@ app = FastAPI(
 
 # Get allowed origin from environment variable - IMPORTANT!
 frontend_origin = os.getenv("FRONTEND_ORIGIN_URL", "http://localhost:5173") # Default to local Vite dev server if not set
+print(f"Using frontend origin: {frontend_origin}")
 
 origins = [
     frontend_origin,
